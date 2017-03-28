@@ -52,7 +52,23 @@ Expression Interpreter::eval()
 {
 	map<string,fcp> functions;
 	fillMap(functions);
-	return evalRecursive(ASTHead, envariables, functions);
+	Expression rxp = evalRecursive(ASTHead, envariables, functions);
+	if (rxp.atom.type == OpType)
+	{
+		if (whatType(rxp.atom.string_value) == StringType
+			&& functions.count(rxp.atom.string_value) == 0)
+		{
+			if (envariables.count(rxp.atom.string_value) > 0)
+			{
+				rxp = envariables[rxp.atom.string_value];
+			}
+			else
+			{
+				throw InterpreterSemanticError("Error: issue in evaluation");
+			}
+		}
+	}
+	return rxp;
 }
 
 Expression Interpreter::evalRecursive(Expression& head, map<string,Expression>& envars, map<string,fcp>& funcMap)

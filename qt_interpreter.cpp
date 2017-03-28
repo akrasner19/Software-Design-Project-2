@@ -38,7 +38,6 @@ void QtInterpreter::parseAndEvaluate(QString entry)
 		}
 		Expression hv = interpreter.eval();
 		std::stringstream ss;
-		//don't forget to account for when begin calls draw
 		while (hv.children.size() > 0)
 		{
 			if (hv.children.front().atom.type == PointType)
