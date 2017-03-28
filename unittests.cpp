@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <tuple>
 
 #include "interpreter_semantic_error.hpp"
 #include "interpreter.hpp"
@@ -522,4 +523,103 @@ TEST_CASE("Tests lt function", "[environment]")
 	    	REQUIRE_THROWS_AS(interp.eval(), InterpreterSemanticError);
 	    }
 	}
+}
+
+TEST_CASE("Tests define function", "[environment]")
+{
+	{
+		std::string program = "(begin (define a (point 2 2)))";
+    	Expression result = runIt(program);
+    	REQUIRE(std::get<0>(result.atom.point_value) == 2);
+	}
+
+	{
+		std::string program = "(begin (define a (point 2 2)) (define b a))";
+    	Expression result = runIt(program);
+    	REQUIRE(std::get<0>(result.atom.point_value) == 2);
+	}
+
+	{
+		std::string program = "(begin (define a (point 2 2)) (define b a) (define c (line a b)))";
+    	Expression result = runIt(program);
+    	REQUIRE(std::get<0>(result.atom.point_value) == 2);
+	}
+
+	{
+		std::string program = "(begin (define a (point 2 2)) (define b (point 2 2)) (define c (line a b)))";
+    	Expression result = runIt(program);
+    	REQUIRE(std::get<0>(result.atom.point_value) == 2);
+	}
+
+	{
+		std::string program = "(begin (define a (point 2 2)) (define b (point 2 2)) (define c (line (point 2 2) b)))";
+    	Expression result = runIt(program);
+    	REQUIRE(std::get<0>(result.atom.point_value) == 2);
+	}
+
+	{
+		std::string program = "(begin (define x True) (if x (define a (point 2 2)) (define b (point 2 2))))";
+    	Expression result = runIt(program);
+    	REQUIRE(!std::get<0>(result.atom.point_value));
+	}
+
+	{
+		std::string program = "(begin (define x False) (if x (define a (point 2 2)) (define b (point 2 2))))";
+    	Expression result = runIt(program);
+    	REQUIRE(std::get<0>(result.atom.point_value));
+	}
+
+	{
+		std::string program = "(begin (define x True) (define r (point 2 2)) (define g (point 2 2)) (if x r g))";
+    	Expression result = runIt(program);
+    	REQUIRE(!std::get<0>(result.atom.point_value));
+	}
+
+	{
+		std::string program = "(begin (define x False) (define r (point 2 2)) (define g (point 2 2)) (if x r g))";
+    	Expression result = runIt(program);
+    	REQUIRE(std::get<0>(result.atom.point_value));
+	}
+
+	{
+		std::string program = "(begin (define b True) (define a (point 2 2)))";
+    	Expression result = runIt(program);
+    	REQUIRE(std::get<0>(result.atom.point_value) == 2);
+	}
+
+	{
+		std::string program = "(begin (define b potato) (define a (point 2 2)))";
+    	Expression result = runIt(program);
+    	REQUIRE(std::get<0>(result.atom.point_value) == 2);
+	}
+
+	{
+		std::string program = "(begin (define b 6) (define a (point 2 2)))";
+    	Expression result = runIt(program);
+    	REQUIRE(std::get<0>(result.atom.point_value) == 2);
+	}
+	/*
+	{
+		std::string program = "(begin (define a True) (if True a 5))";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(true));
+	}
+
+	{
+		std::string program = "(begin (define a 8) (if True a 5))";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(8.));
+	}
+
+	{
+		std::string program = "(begin (define a tyyst) (if True a 5))";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression("tyyst"));
+	}
+
+	{
+		std::string program = "(begin (define a (point 1 1)) (if True a 5))";
+    	Expression result = runIt(program);
+    	REQUIRE(std::get<0>(result.atom.point_value) == 1);
+	} */
 }
