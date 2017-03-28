@@ -6,6 +6,9 @@
 #include <iostream>
 #include <fstream>
 #include <list>
+#include <cmath>
+#include <tuple>
+#include <cctype>
 #include "expression.hpp"
 #include "interpreter_semantic_error.hpp"
 
@@ -14,6 +17,8 @@ using std::string;
 using std::map;
 using std::cerr;
 using std::endl;
+using std::tuple;
+using std::list;
 
 typedef void (*fcp) (Expression&, map<string,Expression>&);
 
@@ -33,6 +38,16 @@ void gtExp(Expression& exp, map<string,Expression>& envars);
 void andExp(Expression& exp, map<string,Expression>& envars);
 void orExp(Expression& exp, map<string,Expression>& envars);
 void notExp(Expression& exp, map<string,Expression>& envars);
+
+void pointExp(Expression& exp, map<string,Expression>& envars);
+void lineExp(Expression& exp, map<string,Expression>& envars);
+void arcExp(Expression& exp, map<string,Expression>& envars);
+
+void sinExp(Expression& exp, map<string,Expression>& envars);
+void cosExp(Expression& exp, map<string,Expression>& envars);
+void arctanExp(Expression& exp, map<string,Expression>& envars);
+
+void drawExp(Expression& exp, map<string,Expression>& envars);
 
 void fillMap(map<string,fcp>& funcMap);
 

@@ -826,7 +826,8 @@ void notExp(Expression& exp, map<string,Expression>& envars)
 void defineExp(Expression& exp, map<string,Expression>& envars)
 {
 	std::set<string> keywords {"+", "-", "*", "/", "=", ">=", "<=", ">", "<",
-								"and", "or", "not", "define", "begin", "if"};
+								"and", "or", "not", "define", "begin", "if",
+								"point", "line", "arc", "sin", "cos", "arctan", "draw"};
 	if (exp.children.size() != 2)
 	{
 		throw InterpreterSemanticError("Error: issue in evaluation");
@@ -846,6 +847,10 @@ void defineExp(Expression& exp, map<string,Expression>& envars)
 		{
 			throw InterpreterSemanticError("Error: issue in evaluation");
 		}
+		if (isdigit(exp.children.front().atom.string_value[0]))
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
+		}
 		keyToExp = exp.children.front().atom.string_value;
 		exp.children.pop_front();
 		if (exp.children.front().atom.type == BoolType)
@@ -862,7 +867,7 @@ void defineExp(Expression& exp, map<string,Expression>& envars)
 			exp.atom.double_value = exp.children.front().atom.double_value;
 			envars[keyToExp] = mappedVal;
 		}
-		else
+		else if (exp.children.front().atom.type == StringType)
 		{
 			if (envars.count(exp.children.front().atom.string_value) > 0)
 			{
@@ -880,12 +885,43 @@ void defineExp(Expression& exp, map<string,Expression>& envars)
 					exp.atom.double_value = envars[exp.children.front().atom.string_value].atom.double_value;
 					envars[keyToExp] = mappedVal;
 				}
-				else
+				else if (envars[exp.children.front().atom.string_value].atom.type == StringType)
 				{
 					Expression mappedVal(envars[exp.children.front().atom.string_value].atom.string_value);
 					exp.atom.type = StringType;
 					exp.atom.string_value = envars[exp.children.front().atom.string_value].atom.string_value;
 					envars[keyToExp] = mappedVal;
+				}
+				else if (envars[exp.children.front().atom.string_value].atom.type == PointType)
+				{
+					Expression mappedVal(envars[exp.children.front().atom.string_value].atom.point_value);
+					exp.atom.type = PointType;
+					exp.atom.point_value = envars[exp.children.front().atom.string_value].atom.point_value;
+					envars[keyToExp] = mappedVal;
+				}
+				else if (envars[exp.children.front().atom.string_value].atom.type == LineType)
+				{
+					Expression mappedVal(envars[exp.children.front().atom.string_value].atom.point_value,
+										envars[exp.children.front().atom.string_value].atom.point2_value);
+					exp.atom.type = LineType;
+					exp.atom.point_value = envars[exp.children.front().atom.string_value].atom.point_value;
+					exp.atom.point2_value = envars[exp.children.front().atom.string_value].atom.point2_value;
+					envars[keyToExp] = mappedVal;
+				}
+				else if (envars[exp.children.front().atom.string_value].atom.type == ArcType)
+				{
+					Expression mappedVal(envars[exp.children.front().atom.string_value].atom.point_value,
+										envars[exp.children.front().atom.string_value].atom.point2_value,
+										envars[exp.children.front().atom.string_value].atom.double_value);
+					exp.atom.type = ArcType;
+					exp.atom.point_value = envars[exp.children.front().atom.string_value].atom.point_value;
+					exp.atom.point2_value = envars[exp.children.front().atom.string_value].atom.point2_value;
+					exp.atom.double_value = envars[exp.children.front().atom.string_value].atom.double_value;
+					envars[keyToExp] = mappedVal;
+				}
+				else
+				{
+					throw InterpreterSemanticError("Error: issue in evaluation");
 				}
 			}
 			else
@@ -895,6 +931,37 @@ void defineExp(Expression& exp, map<string,Expression>& envars)
 				exp.atom.string_value = exp.children.front().atom.string_value;
 				envars[keyToExp] = mappedVal;
 			}
+		}
+		else if (exp.children.front().atom.type == PointType)
+		{
+			Expression mappedVal(exp.children.front().atom.point_value);
+			exp.atom.type = PointType;
+			exp.atom.point_value = exp.children.front().atom.point_value;
+			envars[keyToExp] = mappedVal;
+		}
+		else if (exp.children.front().atom.type == LineType)
+		{
+			Expression mappedVal(exp.children.front().atom.point_value,
+								exp.children.front().atom.point2_value);
+			exp.atom.type = LineType;
+			exp.atom.point_value = exp.children.front().atom.point_value;
+			exp.atom.point2_value = exp.children.front().atom.point2_value;
+			envars[keyToExp] = mappedVal;
+		}
+		else if (exp.children.front().atom.type == ArcType)
+		{
+			Expression mappedVal(exp.children.front().atom.point_value,
+								exp.children.front().atom.point2_value,
+								exp.children.front().atom.double_value);
+			exp.atom.type = ArcType;
+			exp.atom.point_value = exp.children.front().atom.point_value;
+			exp.atom.point2_value = exp.children.front().atom.point2_value;
+			exp.atom.double_value = exp.children.front().atom.double_value;
+			envars[keyToExp] = mappedVal;
+		}
+		else
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
 		}
 		exp.children.pop_front();
 	}
@@ -1023,6 +1090,297 @@ void ifExp(Expression& exp, map<string,Expression>& envars)
 	}
 }
 
+void pointExp(Expression& exp, map<string,Expression>& envars)
+{
+	if (exp.children.size() != 2)
+	{
+		throw InterpreterSemanticError("Error: issue in evaluation");
+	}
+	double x;
+	if (exp.children.front().atom.type != DoubleType)
+	{
+		if (exp.children.front().atom.type == StringType
+			&& envars.count(exp.children.front().atom.string_value) > 0
+			&& envars[exp.children.front().atom.string_value].atom.type == DoubleType)
+		{
+			x = envars[exp.children.front().atom.string_value].atom.double_value;
+		}
+		else
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
+		}
+	}
+	else
+	{
+		x = exp.children.front().atom.double_value;
+	}
+	exp.children.pop_front();
+	double y;
+	if (exp.children.front().atom.type != DoubleType)
+	{
+		if (exp.children.front().atom.type == StringType
+			&& envars.count(exp.children.front().atom.string_value) > 0
+			&& envars[exp.children.front().atom.string_value].atom.type == DoubleType)
+		{
+			y = envars[exp.children.front().atom.string_value].atom.double_value;
+		}
+		else
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
+		}
+	}
+	else
+	{
+		y = exp.children.front().atom.double_value;
+	}
+	exp.children.pop_front();
+	tuple<double,double> coord (x, y);
+	exp.atom.type = PointType;
+	exp.atom.point_value = coord;
+}
+
+void lineExp(Expression& exp, map<string,Expression>& envars)
+{
+	if (exp.children.size() != 2)
+	{
+		throw InterpreterSemanticError("Error: issue in evaluation");
+	}
+	tuple<double,double> coord;
+	if (exp.children.front().atom.type != PointType)
+	{
+		if (exp.children.front().atom.type == StringType
+			&& envars.count(exp.children.front().atom.string_value) > 0
+			&& envars[exp.children.front().atom.string_value].atom.type == PointType)
+		{
+			coord = envars[exp.children.front().atom.string_value].atom.point_value;
+		}
+		else
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
+		}
+	}
+	else
+	{
+		coord = exp.children.front().atom.point_value;
+	}
+	exp.children.pop_front();
+	tuple<double,double> coord2;
+	if (exp.children.front().atom.type != PointType)
+	{
+		if (exp.children.front().atom.type == StringType
+			&& envars.count(exp.children.front().atom.string_value) > 0
+			&& envars[exp.children.front().atom.string_value].atom.type == PointType)
+		{
+			coord2 = envars[exp.children.front().atom.string_value].atom.point_value;
+		}
+		else
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
+		}
+	}
+	else
+	{
+		coord2 = exp.children.front().atom.point_value;
+	}
+	exp.children.pop_front();
+	exp.atom.type = LineType;
+	exp.atom.point_value = coord;
+	exp.atom.point2_value = coord2;
+}
+
+void arcExp(Expression& exp, map<string,Expression>& envars)
+{
+	if (exp.children.size() != 3)
+	{
+		throw InterpreterSemanticError("Error: issue in evaluation");
+	}
+	tuple<double,double> coord;
+	if (exp.children.front().atom.type != PointType)
+	{
+		if (exp.children.front().atom.type == StringType
+			&& envars.count(exp.children.front().atom.string_value) > 0
+			&& envars[exp.children.front().atom.string_value].atom.type == PointType)
+		{
+			coord = envars[exp.children.front().atom.string_value].atom.point_value;
+		}
+		else
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
+		}
+	}
+	else
+	{
+		coord = exp.children.front().atom.point_value;
+	}
+	exp.children.pop_front();
+	tuple<double,double> coord2;
+	if (exp.children.front().atom.type != PointType)
+	{
+		if (exp.children.front().atom.type == StringType
+			&& envars.count(exp.children.front().atom.string_value) > 0
+			&& envars[exp.children.front().atom.string_value].atom.type == PointType)
+		{
+			coord2 = envars[exp.children.front().atom.string_value].atom.point_value;
+		}
+		else
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
+		}
+	}
+	else
+	{
+		coord2 = exp.children.front().atom.point_value;
+	}
+	exp.children.pop_front();
+	double angle;
+	if (exp.children.front().atom.type != DoubleType)
+	{
+		if (exp.children.front().atom.type == StringType
+			&& envars.count(exp.children.front().atom.string_value) > 0
+			&& envars[exp.children.front().atom.string_value].atom.type == DoubleType)
+		{
+			angle = envars[exp.children.front().atom.string_value].atom.double_value;
+		}
+		else
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
+		}
+	}
+	else
+	{
+		angle = exp.children.front().atom.double_value;
+	}
+	exp.children.pop_front();
+	exp.atom.type = ArcType;
+	exp.atom.point_value = coord;
+	exp.atom.point2_value = coord2;
+	exp.atom.double_value = angle;
+}
+
+void sinExp(Expression& exp, map<string,Expression>& envars)
+{
+	if (exp.children.size() != 1)
+	{
+		throw InterpreterSemanticError("Error: issue in evaluation");
+	}
+	double angle;
+	if (exp.children.front().atom.type != DoubleType)
+	{
+		if (exp.children.front().atom.type == StringType
+			&& envars.count(exp.children.front().atom.string_value) > 0
+			&& envars[exp.children.front().atom.string_value].atom.type == DoubleType)
+		{
+			angle = envars[exp.children.front().atom.string_value].atom.double_value;
+		}
+		else
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
+		}
+	}
+	else
+	{
+		angle = exp.children.front().atom.double_value;
+	}
+	exp.children.pop_front();
+	exp.atom.type = DoubleType;
+	exp.atom.double_value = sin(angle);
+}
+
+void cosExp(Expression& exp, map<string,Expression>& envars)
+{
+	if (exp.children.size() != 1)
+	{
+		throw InterpreterSemanticError("Error: issue in evaluation");
+	}
+	double angle;
+	if (exp.children.front().atom.type != DoubleType)
+	{
+		if (exp.children.front().atom.type == StringType
+			&& envars.count(exp.children.front().atom.string_value) > 0
+			&& envars[exp.children.front().atom.string_value].atom.type == DoubleType)
+		{
+			angle = envars[exp.children.front().atom.string_value].atom.double_value;
+		}
+		else
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
+		}
+	}
+	else
+	{
+		angle = exp.children.front().atom.double_value;
+	}
+	exp.children.pop_front();
+	exp.atom.type = DoubleType;
+	exp.atom.double_value = cos(angle);
+}
+
+void arctanExp(Expression& exp, map<string,Expression>& envars)
+{
+	if (exp.children.size() != 2)
+	{
+		throw InterpreterSemanticError("Error: issue in evaluation");
+	}
+	double y;
+	if (exp.children.front().atom.type != DoubleType)
+	{
+		if (exp.children.front().atom.type == StringType
+			&& envars.count(exp.children.front().atom.string_value) > 0
+			&& envars[exp.children.front().atom.string_value].atom.type == DoubleType)
+		{
+			y = envars[exp.children.front().atom.string_value].atom.double_value;
+		}
+		else
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
+		}
+	}
+	else
+	{
+		y = exp.children.front().atom.double_value;
+	}
+	exp.children.pop_front();
+	double x;
+	if (exp.children.front().atom.type != DoubleType)
+	{
+		if (exp.children.front().atom.type == StringType
+			&& envars.count(exp.children.front().atom.string_value) > 0
+			&& envars[exp.children.front().atom.string_value].atom.type == DoubleType)
+		{
+			x = envars[exp.children.front().atom.string_value].atom.double_value;
+		}
+		else
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation");
+		}
+	}
+	else
+	{
+		x = exp.children.front().atom.double_value;
+	}
+	exp.children.pop_front();
+	exp.atom.type = DoubleType;
+	exp.atom.double_value = atan2(y,x);
+}
+
+void drawExp(Expression& exp, map<string,Expression>& envars)
+{
+	if (exp.children.empty())
+	{
+		throw InterpreterSemanticError("Error: issue in evaluation");
+	}
+	for (list<Expression>::iterator it = exp.children.begin(); it != exp.children.end(); ++it)
+	{
+		if (it->atom.type != PointType &&
+			it->atom.type != LineType &&
+			it->atom.type != ArcType)
+		{
+			throw InterpreterSemanticError("Error: issue in evaluation draw parameters");
+		}
+	}
+	exp.atom.type = NoneType;
+}
+
 void fillMap(map<string,fcp>& funcMap)
 {
 	funcMap["+"] = &addExp;
@@ -1040,5 +1398,12 @@ void fillMap(map<string,fcp>& funcMap)
 	funcMap["define"] = &defineExp;
 	funcMap["begin"] = &beginExp;
 	funcMap["if"] = &ifExp;
+	funcMap["point"] = &pointExp;
+	funcMap["line"] = &lineExp;
+	funcMap["arc"] = &arcExp;
+	funcMap["sin"] = &sinExp;
+	funcMap["cos"] = &cosExp;
+	funcMap["arctan"] = &arctanExp;
+	funcMap["draw"] = &drawExp;
 }
 

@@ -37,6 +37,35 @@ Expression::Expression(const string & value)
 	prevHead = nullptr;
 }
 
+// Construct an Expression with a single Point atom with value
+Expression::Expression(tuple<double,double> value)
+{
+	atom.type = PointType;
+	atom.point_value = value;
+	prevHead = nullptr;
+}
+
+// Construct an Expression with a single Line atom with starting
+// point start and ending point end
+Expression::Expression(tuple<double,double> start, tuple<double,double> end)
+{
+	atom.type = LineType;
+	atom.point_value = start;
+	atom.point2_value = end;
+	prevHead = nullptr;
+}
+
+// Construct an Expression with a single Arc atom with center
+// point center, starting point start, and spanning angle angle in radians 
+Expression::Expression(tuple<double,double> center, tuple<double,double> start, double angle)
+{
+	atom.type = ArcType;
+	atom.point_value = center;
+	atom.point2_value = start;
+	atom.double_value = angle;
+	prevHead = nullptr;
+}
+
 // Equality operator for two Expressions, two expressions are equal if the have the same 
 // type, atom value, and number of arguments
 bool Expression::operator==(const Expression & exp) const

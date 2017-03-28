@@ -9,11 +9,13 @@
 #include <list>
 #include <sstream>
 #include <string>
+#include <tuple>
 
 using std::string;
 using std::cerr;
 using std::cout;
 using std::cin;
+using std::tuple;
 
 int main(int argc, char*argv[])
 {
@@ -53,9 +55,33 @@ int main(int argc, char*argv[])
 							cout << "(False)" << endl;
 						}
 					}
-					else
+					else if (exp.atom.type == StringType)
 					{
 						cout << "(" << exp.atom.string_value << ")" << endl;
+					}
+					else if (exp.atom.type == PointType)
+					{
+						cout << "(" << std::get<0>(exp.atom.point_value) << ",";
+						cout << std::get<1>(exp.atom.point_value) << ")" << endl;
+					}
+					else if (exp.atom.type == LineType)
+					{
+						cout << "((" << std::get<0>(exp.atom.point_value) << ",";
+						cout << std::get<1>(exp.atom.point_value) << ")" << "(";
+						cout << std::get<0>(exp.atom.point2_value) << ",";
+						cout << std::get<1>(exp.atom.point2_value) << "))" << endl;
+					}
+					else if (exp.atom.type == ArcType)
+					{
+						cout << "((" << std::get<0>(exp.atom.point_value) << ",";
+						cout << std::get<1>(exp.atom.point_value) << ")" << "(";
+						cout << std::get<0>(exp.atom.point2_value) << ",";
+						cout << std::get<1>(exp.atom.point2_value) << ") ";
+						cout << exp.atom.double_value << ")" << endl;
+					}
+					else
+					{
+						cout << "(None)" << endl;
 					}
 				}
 				catch (InterpreterSemanticError& error)
@@ -102,9 +128,33 @@ int main(int argc, char*argv[])
 							cout << "(False)" << endl;
 						}
 					}
-					else
+					else if (exp.atom.type == StringType)
 					{
 						cout << "(" << exp.atom.string_value << ")" << endl;
+					}
+					else if (exp.atom.type == PointType)
+					{
+						cout << "(" << std::get<0>(exp.atom.point_value) << ",";
+						cout << std::get<1>(exp.atom.point_value) << ")" << endl;
+					}
+					else if (exp.atom.type == LineType)
+					{
+						cout << "((" << std::get<0>(exp.atom.point_value) << ",";
+						cout << std::get<1>(exp.atom.point_value) << ")" << "(";
+						cout << std::get<0>(exp.atom.point2_value) << ",";
+						cout << std::get<1>(exp.atom.point2_value) << "))" << endl;
+					}
+					else if (exp.atom.type == ArcType)
+					{
+						cout << "((" << std::get<0>(exp.atom.point_value) << ",";
+						cout << std::get<1>(exp.atom.point_value) << ")" << "(";
+						cout << std::get<0>(exp.atom.point2_value) << ",";
+						cout << std::get<1>(exp.atom.point2_value) << ") ";
+						cout << exp.atom.double_value << ")" << endl;
+					}
+					else
+					{
+						cout << "(None)" << endl;
 					}
 				}
 				catch (InterpreterSemanticError& error)
@@ -152,9 +202,33 @@ int main(int argc, char*argv[])
 							cout << "(False)" << endl;
 						}
 					}
-					else
+					else if (exp.atom.type == StringType || exp.atom.type == OpType)
 					{
 						cout << "(" << exp.atom.string_value << ")" << endl;
+					}
+					else if (exp.atom.type == PointType)
+					{
+						cout << "(" << std::get<0>(exp.atom.point_value) << ",";
+						cout << std::get<1>(exp.atom.point_value) << ")" << endl;
+					}
+					else if (exp.atom.type == LineType)
+					{
+						cout << "((" << std::get<0>(exp.atom.point_value) << ",";
+						cout << std::get<1>(exp.atom.point_value) << ")" << "(";
+						cout << std::get<0>(exp.atom.point2_value) << ",";
+						cout << std::get<1>(exp.atom.point2_value) << "))" << endl;
+					}
+					else if (exp.atom.type == ArcType)
+					{
+						cout << "((" << std::get<0>(exp.atom.point_value) << ",";
+						cout << std::get<1>(exp.atom.point_value) << ")" << "(";
+						cout << std::get<0>(exp.atom.point2_value) << ",";
+						cout << std::get<1>(exp.atom.point2_value) << ") ";
+						cout << exp.atom.double_value << ")" << endl;
+					}
+					else
+					{
+						cout << "(None)" << endl;
 					}
 				}
 				catch (InterpreterSemanticError& error)

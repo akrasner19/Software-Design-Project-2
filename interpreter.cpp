@@ -9,6 +9,7 @@ using std::cout;
 // Default construct an Interpreter with the default environment and an empty AST
 Interpreter::Interpreter()
 {
+	ASTHead = Expression();
 	ASTHead.atom.type = NoneType;
 	double dVal = atan2(0, -1);
 	Expression piVal(dVal);
@@ -207,9 +208,28 @@ void Interpreter::dupExpVals(Expression& temp)
 	{
 		temp.atom.bool_value = ASTHead.atom.bool_value;
 	}
-	else
+	else if (ASTHead.atom.type == StringType)
 	{
 		temp.atom.string_value = ASTHead.atom.string_value;
+	}
+	else if (ASTHead.atom.type == PointType)
+	{
+		temp.atom.point_value = ASTHead.atom.point_value;
+	}
+	else if (ASTHead.atom.type == LineType)
+	{
+		temp.atom.point_value = ASTHead.atom.point_value;
+		temp.atom.point2_value = ASTHead.atom.point2_value;
+	}
+	else if (ASTHead.atom.type == ArcType)
+	{
+		temp.atom.point_value = ASTHead.atom.point_value;
+		temp.atom.point2_value = ASTHead.atom.point2_value;
+		temp.atom.double_value = ASTHead.atom.double_value;
+	}
+	else
+	{
+		throw InterpreterSemanticError("Error: issue in evaluation");
 	}
 }
 
