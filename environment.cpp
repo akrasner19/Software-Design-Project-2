@@ -974,55 +974,55 @@ void beginExp(Expression& exp, map<string,Expression>& envars)
 		throw InterpreterSemanticError("Error: issue in evaluation");
 	}
 	list<Expression> spList;
-	exp.atom.type = exp.children.front().atom.type;
-	if (exp.children.front().atom.type == BoolType)
+	exp.atom.type = exp.children.back().atom.type;
+	if (exp.children.back().atom.type == BoolType)
 	{
-		exp.atom.bool_value = exp.children.front().atom.bool_value;
+		exp.atom.bool_value = exp.children.back().atom.bool_value;
 	}
-	else if (exp.children.front().atom.type == DoubleType)
+	else if (exp.children.back().atom.type == DoubleType)
 	{
-		exp.atom.double_value = exp.children.front().atom.double_value;
+		exp.atom.double_value = exp.children.back().atom.double_value;
 	}
-	else if (exp.children.front().atom.type == StringType || exp.children.front().atom.type == OpType)
+	else if (exp.children.back().atom.type == StringType || exp.children.front().atom.type == OpType)
 	{
-		exp.atom.string_value = exp.children.front().atom.string_value;
+		exp.atom.string_value = exp.children.back().atom.string_value;
 	}
-	else if (exp.children.front().atom.type == PointType)
+	else if (exp.children.back().atom.type == PointType)
 	{
-		exp.atom.point_value = exp.children.front().atom.point_value;
+		exp.atom.point_value = exp.children.back().atom.point_value;
 	}
-	else if (exp.children.front().atom.type == LineType)
+	else if (exp.children.back().atom.type == LineType)
 	{
-		exp.atom.point_value = exp.children.front().atom.point_value;
-		exp.atom.point2_value = exp.children.front().atom.point2_value;
+		exp.atom.point_value = exp.children.back().atom.point_value;
+		exp.atom.point2_value = exp.children.back().atom.point2_value;
 	}
-	else if (exp.children.front().atom.type == ArcType)
+	else if (exp.children.back().atom.type == ArcType)
 	{
-		exp.atom.point_value = exp.children.front().atom.point_value;
-		exp.atom.point2_value = exp.children.front().atom.point2_value;
-		exp.atom.double_value = exp.children.front().atom.double_value;
+		exp.atom.point_value = exp.children.back().atom.point_value;
+		exp.atom.point2_value = exp.children.back().atom.point2_value;
+		exp.atom.double_value = exp.children.back().atom.double_value;
 	}
-	if (exp.children.front().atom.type == NoneType)
+	if (exp.children.back().atom.type == NoneType)
 	{
 		exp.atom.type = NoneType;
-		while (exp.children.front().children.size() > 0)
+		while (exp.children.back().children.size() > 0)
 		{
-			spList.push_back(exp.children.front().children.front());
-			exp.children.front().children.pop_front();
+			spList.push_back(exp.children.back().children.front());
+			exp.children.back().children.pop_front();
 		}
 	}
-	exp.children.pop_front();
+	exp.children.pop_back();
 	while (exp.children.size() != 0)
 	{
-		if (exp.children.front().atom.type == NoneType)
+		if (exp.children.back().atom.type == NoneType)
 		{
-			while (exp.children.front().children.size() > 0)
+			while (exp.children.back().children.size() > 0)
 			{
-				spList.push_back(exp.children.front().children.front());
-				exp.children.front().children.pop_front();
+				spList.push_back(exp.children.back().children.front());
+				exp.children.back().children.pop_front();
 			}
 		}
-		exp.children.pop_front();
+		exp.children.pop_back();
 	}
 	if (!spList.empty())
 	{
@@ -1039,7 +1039,7 @@ void ifExp(Expression& exp, map<string,Expression>& envars)
 	}
 	list<Expression> spList;
 	bool x;
-	if (exp.children.back().atom.type != BoolType)
+	if (exp.children.front().atom.type != BoolType)
 	{
 		if (exp.children.front().atom.type == StringType
 			&& envars.count(exp.children.front().atom.string_value) > 0
@@ -1054,177 +1054,177 @@ void ifExp(Expression& exp, map<string,Expression>& envars)
 	}
 	else
 	{
-		x = exp.children.back().atom.bool_value;
+		x = exp.children.front().atom.bool_value;
 	}
 	if (x)
 	{
-		exp.children.pop_back();
-		exp.children.pop_back();
-		if (exp.children.back().atom.type == BoolType)
+		exp.children.pop_front();
+		if (exp.children.front().atom.type == BoolType)
 		{
 			exp.atom.type = BoolType;
-			exp.atom.bool_value = exp.children.back().atom.bool_value;
+			exp.atom.bool_value = exp.children.front().atom.bool_value;
 		}
-		else if (exp.children.back().atom.type == DoubleType)
+		else if (exp.children.front().atom.type == DoubleType)
 		{
 			exp.atom.type = DoubleType;
-			exp.atom.double_value = exp.children.back().atom.double_value;
+			exp.atom.double_value = exp.children.front().atom.double_value;
 		}
-		else if (exp.children.back().atom.type == StringType ||
-				exp.children.back().atom.type == OpType)
+		else if (exp.children.front().atom.type == StringType ||
+				exp.children.front().atom.type == OpType)
 		{
 			
-			if (envars.count(exp.children.back().atom.string_value) > 0)
+			if (envars.count(exp.children.front().atom.string_value) > 0)
 			{
-				exp.atom.type = envars[exp.children.back().atom.string_value].atom.type;
-				if (envars[exp.children.back().atom.string_value].atom.type == BoolType)//line that changes
+				exp.atom.type = envars[exp.children.front().atom.string_value].atom.type;
+				if (envars[exp.children.front().atom.string_value].atom.type == BoolType)//line that changes
 				{
-					exp.atom.bool_value = envars[exp.children.back().atom.string_value].atom.bool_value;//line that changes
+					exp.atom.bool_value = envars[exp.children.front().atom.string_value].atom.bool_value;//line that changes
 				}
-				else if (envars[exp.children.back().atom.string_value].atom.type == DoubleType)
+				else if (envars[exp.children.front().atom.string_value].atom.type == DoubleType)
 				{
-					exp.atom.double_value = envars[exp.children.back().atom.string_value].atom.double_value;
+					exp.atom.double_value = envars[exp.children.front().atom.string_value].atom.double_value;
 				}
-				else if (envars[exp.children.back().atom.string_value].atom.type == StringType ||
-						envars[exp.children.back().atom.string_value].atom.type == OpType)
+				else if (envars[exp.children.front().atom.string_value].atom.type == StringType ||
+						envars[exp.children.front().atom.string_value].atom.type == OpType)
 				{
-					exp.atom.string_value = envars[exp.children.back().atom.string_value].atom.string_value;
+					exp.atom.string_value = envars[exp.children.front().atom.string_value].atom.string_value;
 				}
-				else if (envars[exp.children.back().atom.string_value].atom.type == PointType)
+				else if (envars[exp.children.front().atom.string_value].atom.type == PointType)
 				{
-					exp.atom.point_value = envars[exp.children.back().atom.string_value].atom.point_value;
+					exp.atom.point_value = envars[exp.children.front().atom.string_value].atom.point_value;
 				}
-				else if (envars[exp.children.back().atom.string_value].atom.type == LineType)
+				else if (envars[exp.children.front().atom.string_value].atom.type == LineType)
 				{
-					exp.atom.point_value = envars[exp.children.back().atom.string_value].atom.point_value;
-					exp.atom.point2_value = envars[exp.children.back().atom.string_value].atom.point2_value;
+					exp.atom.point_value = envars[exp.children.front().atom.string_value].atom.point_value;
+					exp.atom.point2_value = envars[exp.children.front().atom.string_value].atom.point2_value;
 				}
-				else if (envars[exp.children.back().atom.string_value].atom.type == ArcType)
+				else if (envars[exp.children.front().atom.string_value].atom.type == ArcType)
 				{
-					exp.atom.point_value = envars[exp.children.back().atom.string_value].atom.point_value;
-					exp.atom.point2_value = envars[exp.children.back().atom.string_value].atom.point2_value;
-					exp.atom.double_value = envars[exp.children.back().atom.string_value].atom.double_value;
+					exp.atom.point_value = envars[exp.children.front().atom.string_value].atom.point_value;
+					exp.atom.point2_value = envars[exp.children.front().atom.string_value].atom.point2_value;
+					exp.atom.double_value = envars[exp.children.front().atom.string_value].atom.double_value;
 				}
 			}
 			else
 			{
-				exp.atom.type = exp.children.back().atom.type;
-				exp.atom.string_value = exp.children.back().atom.string_value;
+				exp.atom.type = exp.children.front().atom.type;
+				exp.atom.string_value = exp.children.front().atom.string_value;
 			}
 		}
-		else if (exp.children.back().atom.type == PointType)
+		else if (exp.children.front().atom.type == PointType)
 		{
 			exp.atom.type = PointType;
-			exp.atom.point_value = exp.children.back().atom.point_value;
+			exp.atom.point_value = exp.children.front().atom.point_value;
 		}
-		else if (exp.children.back().atom.type == LineType)
+		else if (exp.children.front().atom.type == LineType)
 		{
 			exp.atom.type = LineType;
-			exp.atom.point_value = exp.children.back().atom.point_value;
-			exp.atom.point2_value = exp.children.back().atom.point2_value;
+			exp.atom.point_value = exp.children.front().atom.point_value;
+			exp.atom.point2_value = exp.children.front().atom.point2_value;
 		} 
-		else if (exp.children.back().atom.type == ArcType)
+		else if (exp.children.front().atom.type == ArcType)
 		{
 			exp.atom.type = ArcType;
-			exp.atom.point_value = exp.children.back().atom.point_value;
-			exp.atom.point2_value = exp.children.back().atom.point2_value;
-			exp.atom.double_value = exp.children.back().atom.double_value;
+			exp.atom.point_value = exp.children.front().atom.point_value;
+			exp.atom.point2_value = exp.children.front().atom.point2_value;
+			exp.atom.double_value = exp.children.front().atom.double_value;
 		} 
 		else
 		{
 			exp.atom.type = NoneType;
-			while (exp.children.back().children.size() > 0)
+			while (exp.children.front().children.size() > 0)
 			{
-				spList.push_back(exp.children.back().children.back());
-				exp.children.back().children.pop_back();
+				spList.push_back(exp.children.front().children.front());
+				exp.children.front().children.pop_front();
 			}
 		}
-		exp.children.pop_back();
+		exp.children.pop_front();
+		exp.children.pop_front();
 	}
 	else
 	{
-		exp.children.pop_back();
-		if (exp.children.back().atom.type == BoolType)
+		exp.children.pop_front();
+		exp.children.pop_front();
+		if (exp.children.front().atom.type == BoolType)
 		{
 			exp.atom.type = BoolType;
-			exp.atom.bool_value = exp.children.back().atom.bool_value;
+			exp.atom.bool_value = exp.children.front().atom.bool_value;
 		}
-		else if (exp.children.back().atom.type == DoubleType)
+		else if (exp.children.front().atom.type == DoubleType)
 		{
 			exp.atom.type = DoubleType;
-			exp.atom.double_value = exp.children.back().atom.double_value;
+			exp.atom.double_value = exp.children.front().atom.double_value;
 		}
-		else if (exp.children.back().atom.type == StringType ||
-				exp.children.back().atom.type == OpType)
+		else if (exp.children.front().atom.type == StringType ||
+				exp.children.front().atom.type == OpType)
 		{
 			
-			if (envars.count(exp.children.back().atom.string_value) > 0)
+			if (envars.count(exp.children.front().atom.string_value) > 0)
 			{
-				exp.atom.type = envars[exp.children.back().atom.string_value].atom.type;
-				if (envars[exp.children.back().atom.string_value].atom.type == BoolType)//line that changes
+				exp.atom.type = envars[exp.children.front().atom.string_value].atom.type;
+				if (envars[exp.children.front().atom.string_value].atom.type == BoolType)//line that changes
 				{
-					exp.atom.bool_value = envars[exp.children.back().atom.string_value].atom.bool_value;//line that changes
+					exp.atom.bool_value = envars[exp.children.front().atom.string_value].atom.bool_value;//line that changes
 				}
-				else if (envars[exp.children.back().atom.string_value].atom.type == DoubleType)
+				else if (envars[exp.children.front().atom.string_value].atom.type == DoubleType)
 				{
-					exp.atom.double_value = envars[exp.children.back().atom.string_value].atom.double_value;
+					exp.atom.double_value = envars[exp.children.front().atom.string_value].atom.double_value;
 				}
-				else if (envars[exp.children.back().atom.string_value].atom.type == StringType ||
-						envars[exp.children.back().atom.string_value].atom.type == OpType)
+				else if (envars[exp.children.front().atom.string_value].atom.type == StringType ||
+						envars[exp.children.front().atom.string_value].atom.type == OpType)
 				{
-					exp.atom.string_value = envars[exp.children.back().atom.string_value].atom.string_value;
+					exp.atom.string_value = envars[exp.children.front().atom.string_value].atom.string_value;
 				}
-				else if (envars[exp.children.back().atom.string_value].atom.type == PointType)
+				else if (envars[exp.children.front().atom.string_value].atom.type == PointType)
 				{
-					exp.atom.point_value = envars[exp.children.back().atom.string_value].atom.point_value;
+					exp.atom.point_value = envars[exp.children.front().atom.string_value].atom.point_value;
 				}
-				else if (envars[exp.children.back().atom.string_value].atom.type == LineType)
+				else if (envars[exp.children.front().atom.string_value].atom.type == LineType)
 				{
-					exp.atom.point_value = envars[exp.children.back().atom.string_value].atom.point_value;
-					exp.atom.point2_value = envars[exp.children.back().atom.string_value].atom.point2_value;
+					exp.atom.point_value = envars[exp.children.front().atom.string_value].atom.point_value;
+					exp.atom.point2_value = envars[exp.children.front().atom.string_value].atom.point2_value;
 				}
-				else if (envars[exp.children.back().atom.string_value].atom.type == ArcType)
+				else if (envars[exp.children.front().atom.string_value].atom.type == ArcType)
 				{
-					exp.atom.point_value = envars[exp.children.back().atom.string_value].atom.point_value;
-					exp.atom.point2_value = envars[exp.children.back().atom.string_value].atom.point2_value;
-					exp.atom.double_value = envars[exp.children.back().atom.string_value].atom.double_value;
+					exp.atom.point_value = envars[exp.children.front().atom.string_value].atom.point_value;
+					exp.atom.point2_value = envars[exp.children.front().atom.string_value].atom.point2_value;
+					exp.atom.double_value = envars[exp.children.front().atom.string_value].atom.double_value;
 				}
 			}
 			else
 			{
-				exp.atom.type = exp.children.back().atom.type;
-				exp.atom.string_value = exp.children.back().atom.string_value;
+				exp.atom.type = exp.children.front().atom.type;
+				exp.atom.string_value = exp.children.front().atom.string_value;
 			}
 		}
-		else if (exp.children.back().atom.type == PointType)
+		else if (exp.children.front().atom.type == PointType)
 		{
 			exp.atom.type = PointType;
-			exp.atom.point_value = exp.children.back().atom.point_value;
+			exp.atom.point_value = exp.children.front().atom.point_value;
 		}
-		else if (exp.children.back().atom.type == LineType)
+		else if (exp.children.front().atom.type == LineType)
 		{
 			exp.atom.type = LineType;
-			exp.atom.point_value = exp.children.back().atom.point_value;
-			exp.atom.point2_value = exp.children.back().atom.point2_value;
+			exp.atom.point_value = exp.children.front().atom.point_value;
+			exp.atom.point2_value = exp.children.front().atom.point2_value;
 		} 
-		else if (exp.children.back().atom.type == ArcType)
+		else if (exp.children.front().atom.type == ArcType)
 		{
 			exp.atom.type = ArcType;
-			exp.atom.point_value = exp.children.back().atom.point_value;
-			exp.atom.point2_value = exp.children.back().atom.point2_value;
-			exp.atom.double_value = exp.children.back().atom.double_value;
+			exp.atom.point_value = exp.children.front().atom.point_value;
+			exp.atom.point2_value = exp.children.front().atom.point2_value;
+			exp.atom.double_value = exp.children.front().atom.double_value;
 		} 
 		else
 		{
 			exp.atom.type = NoneType;
-			while (exp.children.back().children.size() > 0)
+			while (exp.children.front().children.size() > 0)
 			{
-				spList.push_back(exp.children.back().children.back());
-				exp.children.back().children.pop_back();
+				spList.push_back(exp.children.front().children.front());
+				exp.children.front().children.pop_front();
 			}
 		}
-		exp.children.pop_back();
-		exp.children.pop_back();
+		exp.children.pop_front();
 	}
 	if (!spList.empty())
 	{
@@ -1334,7 +1334,7 @@ void arcExp(Expression& exp, map<string,Expression>& envars)
 {
 	if (exp.children.size() != 3)
 	{
-		throw InterpreterSemanticError("Error: issue in evaluation");
+		throw InterpreterSemanticError("Error: issue 1 in arc evaluation");
 	}
 	tuple<double,double> coord;
 	if (exp.children.front().atom.type != PointType)
@@ -1347,7 +1347,7 @@ void arcExp(Expression& exp, map<string,Expression>& envars)
 		}
 		else
 		{
-			throw InterpreterSemanticError("Error: issue in evaluation");
+			throw InterpreterSemanticError("Error: issue 2 in arc evaluation");
 		}
 	}
 	else
@@ -1366,7 +1366,7 @@ void arcExp(Expression& exp, map<string,Expression>& envars)
 		}
 		else
 		{
-			throw InterpreterSemanticError("Error: issue in evaluation");
+			throw InterpreterSemanticError("Error: issue 3 in arc evaluation");
 		}
 	}
 	else
@@ -1385,7 +1385,7 @@ void arcExp(Expression& exp, map<string,Expression>& envars)
 		}
 		else
 		{
-			throw InterpreterSemanticError("Error: issue in evaluation");
+			throw InterpreterSemanticError("Error: issue 4 in arc evaluation");
 		}
 	}
 	else
@@ -1517,7 +1517,37 @@ void drawExp(Expression& exp, map<string,Expression>& envars)
 			it->atom.type != LineType &&
 			it->atom.type != ArcType)
 		{
-			throw InterpreterSemanticError("Error: issue in evaluation draw parameters");
+			if (it->atom.type == StringType ||
+				it->atom.type == OpType)
+			{
+				if (envars.count(it->atom.string_value) > 0)
+				{
+					it->atom.type = envars[it->atom.string_value].atom.type;
+					if (envars[it->atom.string_value].atom.type == PointType)
+					{
+						it->atom.point_value = envars[it->atom.string_value].atom.point_value;
+					}
+					else if (envars[it->atom.string_value].atom.type == LineType)
+					{
+						it->atom.point_value = envars[it->atom.string_value].atom.point_value;
+						it->atom.point2_value = envars[it->atom.string_value].atom.point2_value;
+					}
+					else if (envars[it->atom.string_value].atom.type == ArcType)
+					{
+						it->atom.point_value = envars[it->atom.string_value].atom.point_value;
+						it->atom.point2_value = envars[it->atom.string_value].atom.point2_value;
+						it->atom.double_value = envars[it->atom.string_value].atom.double_value;
+					}
+				}
+				else
+				{
+					throw InterpreterSemanticError("Error: issue in evaluation draw parameters");
+				}
+			}
+			else
+			{
+				throw InterpreterSemanticError("Error: issue in evaluation draw parameters");
+			}
 		}
 	}
 	exp.atom.type = NoneType;

@@ -8,7 +8,7 @@ MessageWidget::MessageWidget(QWidget * parent) : QWidget(parent)
 {
 	QString str = "Message:";
 	auto lbl = new QLabel(str);
-	qled = new QLineEdit();
+	qled = new QLineEdit(this);
 	qled->setReadOnly(true);
 	auto layout = new QHBoxLayout();
 	layout->addWidget(lbl);

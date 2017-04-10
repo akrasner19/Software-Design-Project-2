@@ -4,6 +4,7 @@
 #include "tokenize.hpp"
 #include "expression.hpp"
 #include "interpreter_semantic_error.hpp"
+#include "qgraphics_arc_item.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -15,6 +16,7 @@
 #include <QGraphicsLineItem>
 #include <QBrush>
 #include <tuple>
+//#include <cmath>
 
 using std::string;
 using std::cerr;
@@ -61,13 +63,15 @@ void QtInterpreter::parseAndEvaluate(QString entry)
 			}
 			else if (hv.children.front().atom.type == ArcType)
 			{
-				qreal x = std::get<0>(hv.children.front().atom.point_value);
-				qreal y = std::get<1>(hv.children.front().atom.point_value);
-				qreal w = std::get<0>(hv.children.front().atom.point2_value);
-				qreal h = std::get<1>(hv.children.front().atom.point2_value);
-				auto arc = new QGraphicsEllipseItem(x, y, w, h);
-				int i = hv.children.front().atom.double_value;
-				arc->setSpanAngle(i);
+				qreal cX = std::get<0>(hv.children.front().atom.point_value);
+				qreal cY = std::get<1>(hv.children.front().atom.point_value);
+				qreal spX = std::get<0>(hv.children.front().atom.point2_value);
+				qreal spY = std::get<1>(hv.children.front().atom.point2_value);
+				qreal spanAngle = hv.children.front().atom.double_value;
+				qreal radius = sqrt(pow(cX-spX,2)+pow(cY-spY,2));
+				auto arc = new QGraphicsArcItem(cX, cY, spX, spY, spanAngle, 2*radius);
+				//int i = hv.children.front().atom.double_value;
+				//arc->setSpanAngle(i);
 				emit drawGraphic(arc);
 			}
 			else

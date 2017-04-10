@@ -8,7 +8,7 @@ REPLWidget::REPLWidget(QWidget * parent) : QWidget(parent)
 {
 	QString str = "vtscript>";
 	auto lbl = new QLabel(str);
-	qle = new QLineEdit();
+	qle = new QLineEdit(this);
 	auto layout = new QHBoxLayout();
 	layout->addWidget(lbl);
 	layout->addWidget(qle);

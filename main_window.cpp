@@ -10,12 +10,12 @@
 // Default construct a MainWindow
 MainWindow::MainWindow(QWidget * parent) : QWidget(parent)
 {
-	msg = new MessageWidget;
-	cnvs = new CanvasWidget;
-	repl = new REPLWidget;
-	qterp = new QtInterpreter;
+	msg = new MessageWidget(this);
+	cnvs = new CanvasWidget(this);
+	repl = new REPLWidget(this);
+	qterp = new QtInterpreter(this);
 
-	auto layout = new QVBoxLayout();
+	auto layout = new QVBoxLayout(this);
 	layout->addWidget(msg);
 	layout->addWidget(cnvs);
 	layout->addWidget(repl);

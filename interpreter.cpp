@@ -79,7 +79,7 @@ Expression Interpreter::evalRecursive(Expression& head, map<string,Expression>& 
 	}
 	else
 	{
-		for (list<Expression>::reverse_iterator it = head.children.rbegin(); it != head.children.rend(); ++it)
+		for (list<Expression>::iterator it = head.children.begin(); it != head.children.end(); ++it)
 		{
 			evalRecursive(*it, envars, funcMap);
 		}
@@ -131,17 +131,33 @@ Expression Interpreter::parseHelper(list<string>& tokens, Expression& head)
 				head.atom.type = OpType;
 				head.atom.string_value = tokens.front();
 				tokens.pop_front();
-				return parseHelper(tokens, head);
+				parseHelper(tokens, head);
+				if (tokens.empty())
+				{
+					return head;
+				}
+				else
+				{
+					throw InterpreterSemanticError("Error: issue in parsing");
+				}
 			} //make it so it splits the set up every time it hits a parenthesis into a subset that is processed by the method until it is called
 			else
 			{
 				Expression element(tokens.front());
 				element.atom.type = OpType;
-				element.prevHead = &head;
+				//element.prevHead = &head;
 				tokens.pop_front();
 				parseHelper(tokens, element);
 				head.children.push_back(element);
-				return head;
+				if (tokens.empty())
+				{
+					throw InterpreterSemanticError("Error: issue in parsing");
+				}
+				else
+				{
+					//call the method again with the parent as the node :/
+					return parseHelper(tokens, head);
+				}
 			}
 		}
 		else
@@ -149,26 +165,7 @@ Expression Interpreter::parseHelper(list<string>& tokens, Expression& head)
 			if (tokens.front() == ")")
 			{
 				tokens.pop_front();
-				if (tokens.empty())
-				{
-					if (head.prevHead)
-					{
-						throw InterpreterSemanticError("Error: issue in parsing");
-					}
-					else
-					{
-						return head;
-					}
-				}
-				else
-				{
-					//call the method again with the parent as the node :/
-					if (!head.prevHead)
-					{
-						throw InterpreterSemanticError("Error: issue in parsing");
-					}
-					return parseHelper(tokens, *(head.prevHead));
-				}
+				return head;
 			}
 			else if (whatType(tokens.front()) == BoolType)
 			{
