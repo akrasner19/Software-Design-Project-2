@@ -525,6 +525,171 @@ TEST_CASE("Tests lt function", "[environment]")
 	}
 }
 
+TEST_CASE("Tests or function", "[environment]")
+{
+	{
+		std::string program = "(or False False)";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(false));
+	}
+
+	{
+		std::string program = "(or False True)";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(true));
+	}
+
+	{
+		std::string program = "(or True False False)";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(true));
+	}
+
+	{
+		std::string program = "(or True True)";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(true));
+	}
+
+	{
+		std::string program = "(begin (define a False) (or a False))";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(false));
+	}
+
+	{
+		std::string program = "(begin (define a False) (or True a))";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(true));
+	}
+
+	{
+		std::vector<std::string> programs = {"(or 4 5)", 
+							"(or string string)",
+							"(or True)",
+					       	"(begin (define a soup) (or True a))",
+					       	"(begin (define a 6) (or a True))"
+					   		};
+	    for(auto s : programs)
+	    {
+	    	Interpreter interp;
+
+	    	std::istringstream iss(s);
+	      
+	    	bool ok = interp.parse(iss);
+	    	REQUIRE(ok);
+
+	    	REQUIRE_THROWS_AS(interp.eval(), InterpreterSemanticError);
+	    }
+	}
+}
+
+TEST_CASE("Tests and function", "[environment]")
+{
+	{
+		std::string program = "(and True False)";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(false));
+	}
+
+	{
+		std::string program = "(and False False)";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(false));
+	}
+
+	{
+		std::string program = "(and True False False)";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(false));
+	}
+
+	{
+		std::string program = "(and True True)";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(true));
+	}
+
+	{
+		std::string program = "(begin (define a False) (and a False))";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(false));
+	}
+
+	{
+		std::string program = "(begin (define a True) (or True a))";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(true));
+	}
+
+	{
+		std::vector<std::string> programs = {"(and 4 5)", 
+							"(and string string)",
+							"(and True)",
+					       	"(begin (define a soup) (and True a))",
+					       	"(begin (define a 6) (and a True))"
+					   		};
+	    for(auto s : programs)
+	    {
+	    	Interpreter interp;
+
+	    	std::istringstream iss(s);
+	      
+	    	bool ok = interp.parse(iss);
+	    	REQUIRE(ok);
+
+	    	REQUIRE_THROWS_AS(interp.eval(), InterpreterSemanticError);
+	    }
+	}
+}
+
+TEST_CASE("Tests not function", "[environment]")
+{
+	{
+		std::string program = "(not False)";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(true));
+	}
+
+	{
+		std::string program = "(not True)";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(false));
+	}
+
+	{
+		std::string program = "(begin (define a False) (not a))";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(true));
+	}
+
+	{
+		std::string program = "(begin (define a True) (not a))";
+    	Expression result = runIt(program);
+    	REQUIRE(result == Expression(false));
+	}
+
+	{
+		std::vector<std::string> programs = {"(not 4)", 
+							"(not string)",
+							"(not True True)",
+					       	"(begin (define a soup) (not a))",
+					       	"(begin (define a 6) (not a))"
+					   		};
+	    for(auto s : programs)
+	    {
+	    	Interpreter interp;
+
+	    	std::istringstream iss(s);
+	      
+	    	bool ok = interp.parse(iss);
+	    	REQUIRE(ok);
+
+	    	REQUIRE_THROWS_AS(interp.eval(), InterpreterSemanticError);
+	    }
+	}
+}
+
 TEST_CASE("Tests define function", "[environment]")
 {
 	{
@@ -560,7 +725,7 @@ TEST_CASE("Tests define function", "[environment]")
 	{
 		std::string program = "(begin (define x True) (if x (define a (point 2 2)) (define b (point 2 2))))";
     	Expression result = runIt(program);
-    	REQUIRE(!std::get<0>(result.atom.point_value));
+    	REQUIRE(std::get<0>(result.atom.point_value) == 2);
 	}
 
 	{
@@ -572,7 +737,7 @@ TEST_CASE("Tests define function", "[environment]")
 	{
 		std::string program = "(begin (define x True) (define r (point 2 2)) (define g (point 2 2)) (if x r g))";
     	Expression result = runIt(program);
-    	REQUIRE(!std::get<0>(result.atom.point_value));
+    	REQUIRE(std::get<0>(result.atom.point_value) == 2);
 	}
 
 	{
@@ -598,28 +763,4 @@ TEST_CASE("Tests define function", "[environment]")
     	Expression result = runIt(program);
     	REQUIRE(std::get<0>(result.atom.point_value) == 2);
 	}
-	/*
-	{
-		std::string program = "(begin (define a True) (if True a 5))";
-    	Expression result = runIt(program);
-    	REQUIRE(result == Expression(true));
-	}
-
-	{
-		std::string program = "(begin (define a 8) (if True a 5))";
-    	Expression result = runIt(program);
-    	REQUIRE(result == Expression(8.));
-	}
-
-	{
-		std::string program = "(begin (define a tyyst) (if True a 5))";
-    	Expression result = runIt(program);
-    	REQUIRE(result == Expression("tyyst"));
-	}
-
-	{
-		std::string program = "(begin (define a (point 1 1)) (if True a 5))";
-    	Expression result = runIt(program);
-    	REQUIRE(std::get<0>(result.atom.point_value) == 1);
-	} */
 }

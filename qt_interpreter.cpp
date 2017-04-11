@@ -46,6 +46,8 @@ void QtInterpreter::parseAndEvaluate(QString entry)
 			{
 				qreal x = std::get<0>(hv.children.front().atom.point_value);
 				qreal y = std::get<1>(hv.children.front().atom.point_value);
+				x = x - 1;
+				y = y - 1;
 				auto pointcirc = new QGraphicsEllipseItem(x, y, 4, 4);
 				QBrush brush(Qt::SolidPattern);
 				pointcirc->setBrush(brush);
@@ -69,6 +71,8 @@ void QtInterpreter::parseAndEvaluate(QString entry)
 				qreal spY = std::get<1>(hv.children.front().atom.point2_value);
 				qreal spanAngle = hv.children.front().atom.double_value;
 				qreal radius = sqrt(pow(cX-spX,2)+pow(cY-spY,2));
+				cX = cX - radius;
+				cY = cY - radius;
 				auto arc = new QGraphicsArcItem(cX, cY, spX, spY, spanAngle, 2*radius);
 				//int i = hv.children.front().atom.double_value;
 				//arc->setSpanAngle(i);

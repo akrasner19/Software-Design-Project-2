@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <cctype>
 
 using std::cout;
 
@@ -14,6 +15,10 @@ Interpreter::Interpreter()
 	double dVal = atan2(0, -1);
 	Expression piVal(dVal);
 	envariables["pi"] = piVal;
+	/*Expression truVal(true);
+	envariables["True"] = truVal;
+	Expression falVal(false);
+	envariables["False"] = falVal;*/
 }
 
 bool isNumber(const string& s)
@@ -96,6 +101,37 @@ Expression Interpreter::evalRecursive(Expression& head, map<string,Expression>& 
 	}
 }
 
+Expression giveRelExp(string token)
+{
+	if (whatType(token) == BoolType)
+	{
+		if (token == "True")
+		{
+			Expression element(true);
+			return element;
+		}
+		else if (token == "False")
+		{
+			Expression element(false);
+			return element;
+		}
+	}
+	else if (whatType(token) == DoubleType)
+	{
+		Expression element(std::stod(token));
+		return element;
+	}
+	else if (whatType(token) == StringType)
+	{
+		Expression element(token);
+		return element;
+	}
+	else
+	{
+		throw InterpreterSemanticError("Error: issue in parsing");
+	}
+}
+
 AtomType whatType(string token)
 {
 	AtomType theType;
@@ -126,8 +162,45 @@ Expression Interpreter::parseHelper(list<string>& tokens, Expression& head)
 			{
 				throw InterpreterSemanticError("Error: issue in parsing");
 			}
+			if (isdigit(tokens.front()[0]))
+			{
+				for (int i = 1; i < tokens.front().size(); ++i)
+				{
+					if(!isdigit(tokens.front()[i]) &&
+						tokens.front()[i] != 'e' &&
+						tokens.front()[i] != '-' &&
+						tokens.front()[i] != '+' &&
+						tokens.front()[i] != '.')
+					{
+						throw InterpreterSemanticError("Error: issue in parsing");
+					}
+				}
+			}
 			if (head.atom.type != OpType)
 			{
+				if (tokens.size() > 1)
+				{
+					list<string>::iterator checker = tokens.begin();
+					checker++;
+					if (*checker == ")")
+					{
+						head = giveRelExp(tokens.front());
+						if (head.atom.type == StringType)
+						{
+							head.atom.type = OpType;
+						}
+						tokens.pop_front();
+						parseHelper(tokens, head);
+						if (tokens.empty())
+						{
+							return head;
+						}
+						else
+						{
+							throw InterpreterSemanticError("Error: issue in parsing");
+						}
+					}
+				}
 				head.atom.type = OpType;
 				head.atom.string_value = tokens.front();
 				tokens.pop_front();
@@ -143,6 +216,35 @@ Expression Interpreter::parseHelper(list<string>& tokens, Expression& head)
 			} //make it so it splits the set up every time it hits a parenthesis into a subset that is processed by the method until it is called
 			else
 			{
+				if (tokens.size() > 1)
+				{
+					list<string>::iterator checker = tokens.begin();
+					checker++;
+					if (*checker == ")")
+					{
+						Expression literal = giveRelExp(tokens.front());
+						/*if (head.atom.type == StringType)
+						{
+							head.atom.type = OpType;
+						}*/
+						if (literal.atom.type == StringType)
+						{
+							literal.atom.type = OpType;
+						}
+						tokens.pop_front();
+						parseHelper(tokens, head);
+						head.children.push_back(literal);
+						if (tokens.empty())
+						{
+							throw InterpreterSemanticError("Error: issue in parsing");
+						}
+						else
+						{
+							//call the method again with the parent as the node :/
+							return parseHelper(tokens, head);
+						}
+					}
+				}
 				Expression element(tokens.front());
 				element.atom.type = OpType;
 				//element.prevHead = &head;

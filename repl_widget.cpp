@@ -2,13 +2,35 @@
 #include <QLayout>
 #include <QLabel>
 #include <QObject>
+#include <QEvent>
+#include <QDebug>
+
+//event stuff start ------------------
+EventLineEdit::EventLineEdit(QWidget * parent) : QLineEdit(parent)
+{
+}
+
+void EventLineEdit::keyPressEvent(QKeyEvent * event)
+{
+    if (event->key() == Qt::Key_Up ||
+    	event->key() == Qt::Key_Down)
+    {
+        emit sendKeyEvent(event);
+        //qDebug() << "Event emitted";
+    }
+    else
+    {
+    	QLineEdit::keyPressEvent(event);
+    }
+}
+//event stuff end ---------------------
 
 // Default construct a REPLWidget
 REPLWidget::REPLWidget(QWidget * parent) : QWidget(parent)
 {
 	QString str = "vtscript>";
 	auto lbl = new QLabel(str);
-	qle = new QLineEdit(this);
+	qle = new EventLineEdit(this);
 	auto layout = new QHBoxLayout();
 	layout->addWidget(lbl);
 	layout->addWidget(qle);
@@ -16,7 +38,8 @@ REPLWidget::REPLWidget(QWidget * parent) : QWidget(parent)
 	QObject::connect(qle, SIGNAL(returnPressed()), 
 					this, SLOT(pullFromQLE()));
 
-	//QObject::connect()
+	QObject::connect(qle, SIGNAL(sendKeyEvent(QKeyEvent*)),
+					this, SLOT(historyAccess(QKeyEvent*)));
 
 	setLayout(layout);
 
@@ -37,8 +60,9 @@ void REPLWidget::pullFromQLE()
 	idx = history.begin();
 }
 
-/*void REPLWidget::historyAccess(QKeyEvent * kp)
+void REPLWidget::historyAccess(QKeyEvent * kp)
 {
+	//qDebug() << "It was called";
 	if (history.size() > 0)
 	{
 		if (kp->key() == Qt::Key_Up)
@@ -49,8 +73,8 @@ void REPLWidget::pullFromQLE()
 				if (idx == history.end())
 				{
 					idx--;
-					qle->setText(*idx);
 				}
+				qle->setText(*idx);
 			}
 			else
 			{
@@ -76,4 +100,3 @@ void REPLWidget::pullFromQLE()
 		}
 	}
 }
-*/

@@ -102,6 +102,39 @@ bool Expression::operator==(const Expression & exp) const
 				}
 			}
 		}
+		else if (exp.atom.type == PointType)
+		{
+			if (exp.atom.point_value == this->atom.point_value)
+			{
+				if (exp.children.size() == this->children.size())
+				{
+					return true;
+				}
+			}
+		}
+		else if (exp.atom.type == LineType)
+		{
+			if (exp.atom.point_value == this->atom.point_value &&
+				exp.atom.point2_value == this->atom.point2_value)
+			{
+				if (exp.children.size() == this->children.size())
+				{
+					return true;
+				}
+			}
+		}
+		else if (exp.atom.type == ArcType)
+		{
+			if (exp.atom.point_value == this->atom.point_value &&
+				exp.atom.point2_value == this->atom.point2_value &&
+				exp.atom.double_value == this->atom.double_value)
+			{
+				if (exp.children.size() == this->children.size())
+				{
+					return true;
+				}
+			}
+		}
 		else if (exp.atom.type == NoneType)
 		{
 			if (exp.children.size() == this->children.size())

@@ -89,6 +89,7 @@ void subExp(Expression& exp, map<string,Expression>& envars)
 			{
 				diff = -exp.children.front().atom.double_value;
 			}
+			exp.children.pop_front();
 		}
 		else
 		{
@@ -983,7 +984,7 @@ void beginExp(Expression& exp, map<string,Expression>& envars)
 	{
 		exp.atom.double_value = exp.children.back().atom.double_value;
 	}
-	else if (exp.children.back().atom.type == StringType || exp.children.front().atom.type == OpType)
+	else if (exp.children.back().atom.type == StringType || exp.children.back().atom.type == OpType)
 	{
 		exp.atom.string_value = exp.children.back().atom.string_value;
 	}
@@ -1425,7 +1426,12 @@ void sinExp(Expression& exp, map<string,Expression>& envars)
 	}
 	exp.children.pop_front();
 	exp.atom.type = DoubleType;
-	exp.atom.double_value = sin(angle);
+	double rounder = sin(angle);
+	if (rounder < 0.000000001 && rounder > -0.000000001)
+	{
+		rounder = 0;
+	}
+	exp.atom.double_value = rounder;
 }
 
 void cosExp(Expression& exp, map<string,Expression>& envars)
@@ -1454,7 +1460,12 @@ void cosExp(Expression& exp, map<string,Expression>& envars)
 	}
 	exp.children.pop_front();
 	exp.atom.type = DoubleType;
-	exp.atom.double_value = cos(angle);
+	double rounder = cos(angle);
+	if (rounder < 0.000000001 && rounder > -0.000000001)
+	{
+		rounder = 0;
+	}
+	exp.atom.double_value = rounder;
 }
 
 void arctanExp(Expression& exp, map<string,Expression>& envars)

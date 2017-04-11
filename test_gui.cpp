@@ -22,6 +22,8 @@ private slots:
   void testLine();
   void testArc();
   void testEnvRestore();
+  void testCar();
+  void testHist();
 
 private:
   MainWindow w;
@@ -191,6 +193,58 @@ void TestGUI::testEnvRestore() {
   // check canvas
   QVERIFY2(scene->itemAt(QPointF(-20, 0), QTransform()) == 0,
            "Did not expected a point in the scene. One found.");
+}
+
+void TestGUI::testCar()
+{
+  QVERIFY(repl && replEdit);
+  QVERIFY(canvas && scene);
+
+  //make a new MainWindow to generate the car
+  MainWindow * mwin;
+  mwin = new MainWindow("/vagrant/tests/test_car.vts");
+
+  // send a string to the repl widget
+  QTest::keyClicks(replEdit, "(draw (point 0 0))");
+  QTest::keyClick(replEdit, Qt::Key_Return, Qt::NoModifier);
+
+  // check canvas
+  QVERIFY2(scene->itemAt(QPointF(0, 0), QTransform()) != 0,
+           "Expected a point in the scene. Not found.");
+
+  delete mwin;
+}
+
+void TestGUI::testHist()
+{
+  QVERIFY(repl && replEdit);
+  QVERIFY(canvas && scene);
+
+  // send a string to the repl widget
+  QTest::keyClicks(replEdit, "(draw (line (point 10 0) (point 0 10)))");
+  QTest::keyClick(replEdit, Qt::Key_Return, Qt::NoModifier);
+  QTest::keyClicks(replEdit, "(line (point 10 0) (point 0 10))");
+  QTest::keyClick(replEdit, Qt::Key_Return, Qt::NoModifier);
+  QTest::keyClicks(replEdit, "(point 10 0)");
+  QTest::keyClick(replEdit, Qt::Key_Return, Qt::NoModifier);
+  QTest::keyClick(replEdit, Qt::Key_Down, Qt::NoModifier);
+  QTest::keyClick(replEdit, Qt::Key_Up, Qt::NoModifier);
+  QTest::keyClick(replEdit, Qt::Key_Up, Qt::NoModifier);
+  QTest::keyClick(replEdit, Qt::Key_Up, Qt::NoModifier);
+  QTest::keyClick(replEdit, Qt::Key_Up, Qt::NoModifier);
+  QTest::keyClick(replEdit, Qt::Key_Down, Qt::NoModifier);
+  QTest::keyClick(replEdit, Qt::Key_Up, Qt::NoModifier);
+  QTest::keyClick(replEdit, Qt::Key_Down, Qt::NoModifier);
+  QTest::keyClick(replEdit, Qt::Key_Down, Qt::NoModifier);
+  QTest::keyClick(replEdit, Qt::Key_Down, Qt::NoModifier);
+  QTest::keyClick(replEdit, Qt::Key_Down, Qt::NoModifier);
+
+  
+  // check canvas
+  QVERIFY2(scene->itemAt(QPointF(10, 0), QTransform()) != 0,
+           "Expected a line in the scene. Not found.");
+  QVERIFY2(scene->itemAt(QPointF(0, 10), QTransform()) != 0,
+           "Expected a line in the scene. Not found.");
 }
 
 QTEST_MAIN(TestGUI)

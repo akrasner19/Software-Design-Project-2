@@ -1,6 +1,6 @@
 #include "qgraphics_arc_item.hpp"
 #include <QLineF>
-
+#include <QDebug>
 void QGraphicsArcItem::paint(QPainter * painter, 
 							const QStyleOptionGraphicsItem * option, 
 							QWidget * widget)
@@ -17,8 +17,9 @@ QGraphicsArcItem::QGraphicsArcItem(qreal cX, qreal cY,
 								: QGraphicsEllipseItem(cX, cY, diameter, diameter, parent)
 {
 	//qreal radius = sqrt(pow(cX-spX,2)+pow(cY-spY,2));
+	//CHANGE IT TO CALCULATE THE TOP CORNER OF THE RECTANGLE
 	int rAngle = (180*16*spanAngle)/atan2(0,-1);
 	this->setSpanAngle(rAngle);
-	QLineF tempLine(cX, cY, spX, spY);
+	QLineF tempLine(cX + (diameter/2), cY + (diameter/2), spX, spY);
 	this->setStartAngle(16*tempLine.angle());
 }

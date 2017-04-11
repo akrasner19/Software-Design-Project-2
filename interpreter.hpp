@@ -53,4 +53,6 @@ void rtp(Expression& exp);
 
 void soleSurvivor(Expression& exp);
 
+Expression giveRelExp(string token);
+
 #endif
