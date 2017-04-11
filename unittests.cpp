@@ -763,4 +763,49 @@ TEST_CASE("Tests define function", "[environment]")
     	Expression result = runIt(program);
     	REQUIRE(std::get<0>(result.atom.point_value) == 2);
 	}
+
+	{
+		std::string program = "(begin (define b 20) (define a b))";
+    	Expression result = runIt(program);
+    	REQUIRE(result.atom.double_value == 20);
+	}
+
+	{
+		std::string program = "(begin (define b potato) (define a b))";
+    	Expression result = runIt(program);
+    	REQUIRE(result.atom.string_value == "potato");
+	}
+
+	{
+		std::string program = "(begin (define b (line (point 1 1) (point 2 2))) (define a b) (+ 1 1))";
+    	Expression result = runIt(program);
+    	REQUIRE(result.atom.double_value == 2);
+	}
+
+	{
+		std::string program = "(begin (define b (arc (point 1 1) (point 2 2) 5)) (define a b) (+ 1 1))";
+    	Expression result = runIt(program);
+    	REQUIRE(result.atom.double_value == 2);
+	}
+
+	{
+		std::string program = "(begin (define mega 4) (define b (arc (point 1 1) (point mega 2) 5)) (define a b) (+ 1 1))";
+    	Expression result = runIt(program);
+    	REQUIRE(result.atom.double_value == 2);
+	}
+
+	{
+		std::string program = "(begin (define mega (point 1 1)) (define megad (point 2 2)) (define b (arc mega megad 5)) (define a b) (+ 1 1))";
+    	Expression result = runIt(program);
+    	REQUIRE(result.atom.double_value == 2);
+	}
+}
+
+TEST_CASE("Tests arctan function", "[environment]")
+{
+	{
+		std::string program = "(begin (define one 1) (define zero 0) (arctan one zero) (+ 1 1))";
+    	Expression result = runIt(program);
+    	REQUIRE(result.atom.double_value == 2);
+	}
 }
